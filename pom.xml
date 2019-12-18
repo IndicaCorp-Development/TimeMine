@@ -6,7 +6,7 @@
 
     <groupId>net.indicacorp</groupId>
     <artifactId>TimeMine</artifactId>
-    <version>1.0.0-alpha1</version>
+    <version>1.0.0-alpha2</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
