@@ -1,0 +1,11 @@
+name: TimeMine
+version: 1.0.0-alpha1
+author: Github/popatop15
+website: www.indicacorp.net
+main: net.indicacorp.timemine.TimeMine
+api-version: "1.14"
+commands:
+  timemine:
+    description: TimeMine base command.
+    usage: "/timemine help"
+    aliases: [tm]

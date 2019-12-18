@@ -1,0 +1,18 @@
+language: java
+
+jdk:
+- openjdk8
+
+script: mvn -DskipTests=true -B package --file pom.xml
+
+after_success: source script.sh
+
+deploy:
+  provider: releases
+  token: $GITHUB_TOKEN
+  file: $PLUGIN_JAR_PATH
+  prerelease: $PRERELEASE
+  draft: $DRAFT
+  on:
+    branch: master
+    tags: true
