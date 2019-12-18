@@ -7,8 +7,6 @@ script: mvn -DskipTests=true -B package --file pom.xml
 
 after_success: source script.sh
 
-skip_cleanup: true
-
 if: branch = master
 
 deploy:
@@ -17,5 +15,6 @@ deploy:
   file: $PLUGIN_JAR_PATH
   prerelease: $PRERELEASE
   draft: $DRAFT
+  skip_cleanup: true
   on:
     branch: master
