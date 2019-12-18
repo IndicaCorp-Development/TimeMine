@@ -5,7 +5,9 @@ jdk:
 
 script: mvn -DskipTests=true -B package --file pom.xml
 
-after_success: source script.sh
+after_success:
+  - ls target
+  - source script.sh
 
 if: branch = master
 
