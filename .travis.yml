@@ -7,6 +7,8 @@ script: mvn -DskipTests=true -B package --file pom.xml
 
 after_success: source script.sh
 
+skip_cleanup: true
+
 deploy:
   provider: releases
   token: $GITHUB_TOKEN
