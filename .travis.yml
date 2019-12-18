@@ -9,6 +9,8 @@ after_success: source script.sh
 
 skip_cleanup: true
 
+if: branch = master
+
 deploy:
   provider: releases
   token: $GITHUB_TOKEN
