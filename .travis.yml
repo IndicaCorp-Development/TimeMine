@@ -15,4 +15,3 @@ deploy:
   draft: $DRAFT
   on:
     branch: master
-    tags: true
