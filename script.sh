@@ -6,7 +6,7 @@ PLUGIN_NAME=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.artifactId}
 RELEASE_DESCRIPTION=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.releaseDescription}' --non-recursive exec:exec)
 PRERELEASE_STR=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.prerelease}' --non-recursive exec:exec)
 DRAFT_STR=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.draft}' --non-recursive exec:exec)
-PLUGIN_JAR_PATH="target/$PLUGIN_NAME-$PLUGIN_VERSION"
+PLUGIN_JAR_PATH="./target/$PLUGIN_NAME-$PLUGIN_VERSION"
 if [ "$PRERELEASE_STR" == "yes" ]
 then
   PRERELEASE=true
