@@ -15,7 +15,7 @@ public class Database {
 
     private Connection connection = null;
 
-    public boolean checkDatabaseDriver() {
+    private boolean checkDatabaseDriver() {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             return true;
@@ -36,6 +36,9 @@ public class Database {
         minedAt        NULL
         resetInterval  60
          */
+        // Check for database driver on init
+        if (!checkDatabaseDriver()) throw new Exception("Database driver not found");
+
         String sql = "CREATE TABLE IF NOT EXISTS timemine ( x INT NOT NULL, y INT NOT NULL, z INT NOT NULL, world VARCHAR(255) NOT NULL, isMined TINYINT(1) NOT NULL DEFAULT 0, displayBlock VARCHAR(50) NOT NULL, originalBlock VARCHAR(50) NOT NULL DEFAULT 'SMOOTH_STONE', dropItem VARCHAR(50) NOT NULL, dropItemCount INT NOT NULL DEFAULT 1, minedAt TIMESTAMP NULL DEFAULT NULL, resetInterval INT NOT NULL DEFAULT 60)";
 
         this.fetchConnection();

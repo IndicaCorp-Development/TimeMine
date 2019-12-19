@@ -30,13 +30,6 @@ public class TimeMine extends JavaPlugin {
         //Save default config.yml if not exists
         saveDefaultConfig();
 
-        //Check for database driver
-        if (!database.checkDatabaseDriver()) {
-            getLogger().warning("Database driver is not available for connections.");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-
         try {
             //Init database schema
             database.initDatabase();
