@@ -36,10 +36,17 @@ public class TimeMine extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+
         try {
             //Init database schema
             database.initDatabase();
+        } catch(Exception e) {
+            getLogger().warning("Error occurred while initializing database. Make sure the database information provided in the config is accurate.");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
+        try {
             //Reset all TimeMine blocks
             initAllBlocks();
 
@@ -70,9 +77,6 @@ public class TimeMine extends JavaPlugin {
         getLogger().info("Plugin disabled successfully.");
     }
 
-    public void disablePlugin() {
-        getServer().getPluginManager().disablePlugin(this);
-    }
     public void stopBlockResetTask() { blockResetTask.stop(); }
     public void startBlockResetTask() { blockResetTask.start(); }
 
@@ -86,8 +90,10 @@ public class TimeMine extends JavaPlugin {
                     final int y = results.getInt("y");
                     final int z = results.getInt("z");
                     final World world = Bukkit.getServer().getWorld(results.getString("world"));
+                    if (world == null) continue;
                     final Block block = world.getBlockAt(x, y, z);
                     final Material displayBlock = Material.getMaterial(results.getString("displayBlock"));
+                    if (displayBlock == null) continue;
                     block.setType(displayBlock);
                     sql = "UPDATE timemine SET minedAt = NULL, isMined = 0 WHERE x = " + x + " AND y = " + y + " AND z = " + z + " AND world = " + world.getName();
                     database.insertOrUpdate(sql);
