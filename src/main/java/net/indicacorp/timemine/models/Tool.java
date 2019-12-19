@@ -26,7 +26,7 @@ public class Tool {
 //        for (String e : mineables) {
 //
 //        }
-        System.out.println(mineables);
+//        System.out.println(mineables);
     }
 
     public boolean canMine(Material material) {
