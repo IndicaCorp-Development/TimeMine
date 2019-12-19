@@ -26,7 +26,7 @@ public class BlockResetTask {
     }
 
     public void stop() {
-        task.cancel(true);
+        if (task != null) task.cancel(true);
         task = null;
     }
 
@@ -56,6 +56,8 @@ public class BlockResetTask {
                         final Date minedAt = results.getTimestamp("minedAt");
                         final Date expiredAt = new Date(minedAt.getTime() + (resetInterval * 1000));
                         final Date currentDate = new Date();
+
+                        if (world == null || displayBlock == null) return;
 
                         if (expiredAt.getTime() <= currentDate.getTime()) {
                             Bukkit.getScheduler().runTask(plugin, () -> world.getBlockAt(x, y, z).setType(displayBlock));
