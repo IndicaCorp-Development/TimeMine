@@ -1,6 +1,10 @@
 package net.indicacorp.timemine.util;
 
 import net.indicacorp.timemine.TimeMine;
+import net.indicacorp.timemine.exceptions.BlockNotFoundException;
+import net.indicacorp.timemine.exceptions.InvalidWorldException;
+import net.indicacorp.timemine.models.TimeMineBlock;
+import net.indicacorp.timemine.tasks.BlockResetTask;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -8,12 +12,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CommandHandler implements CommandExecutor {
     TimeMine plugin;
-    final String prefix;
+    String prefix;
 
     public CommandHandler(TimeMine instance) {
         plugin = instance;
@@ -23,6 +28,10 @@ public class CommandHandler implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
         if (commandSender instanceof Player) {
+            if (!commandSender.hasPermission("timemine.admin")) {
+                commandSender.sendMessage(prefix + " You don't have permission to use this command.");
+                return true;
+            }
             if (args.length < 1) {
                 sendHelp(commandSender);
                 return true;
@@ -38,11 +47,11 @@ public class CommandHandler implements CommandExecutor {
                     handleRemove(commandSender, true);
                     break;
                 case "stop":
-                    plugin.stopBlockResetTask();
+                    plugin.stopResetTask();
                     commandSender.sendMessage("BlockResetTask has been stopped.");
                     break;
                 case "start":
-                    plugin.startBlockResetTask();
+                    plugin.startResetTask();
                     commandSender.sendMessage("BlockResetTask has been started.");
                     break;
                 case "list":
@@ -55,7 +64,7 @@ public class CommandHandler implements CommandExecutor {
                     sendHelp(commandSender);
                     break;
                 case "reset":
-                    plugin.initAllBlocks();
+                    BlockCache.resetAllBlocks();
                     break;
                 default:
                     handleAdd(commandSender, args);
@@ -81,196 +90,157 @@ public class CommandHandler implements CommandExecutor {
     }
 
     private void handleInfo(CommandSender commandSender) {
-        final Database database = new Database();
-        final Player player = (Player) commandSender;
-        final Block targetBlock = player.getTargetBlockExact(30, FluidCollisionMode.ALWAYS);
+        Player player = (Player) commandSender;
+        Block targetBlock = player.getTargetBlockExact(30, FluidCollisionMode.ALWAYS);
+
+        //Check if target block is valid
         if(targetBlock == null) {
             player.sendMessage(prefix + " The block you are looking at is invalid or too far away.");
             return;
         }
-        final int x = targetBlock.getX();
-        final int y = targetBlock.getY();
-        final int z = targetBlock.getZ();
-        final World world = targetBlock.getWorld();
-        try {
-            final String sql = "SELECT * FROM timemine WHERE x = " + x + " AND y = " + y + " AND z = " + z + " AND world = " + world.getName();
-            ResultSet results = database.query(sql);
-            if (results != null && results.first()) {
-                final String blockInfoString = ""
-                        + prefix + " block info:"
-                        + "\n" + ChatColor.RESET + "Coordinates: " + ChatColor.AQUA + world.getName() + ChatColor.AQUA + " X" + ChatColor.GREEN + x + ChatColor.AQUA + " Y" + ChatColor.GREEN + y + ChatColor.AQUA + " Z" + ChatColor.GREEN + z
-                        + "\n" + ChatColor.RESET + "Is Mined: " + ChatColor.AQUA + results.getBoolean("isMined")
-                        + "\n" + ChatColor.RESET + "Display Block: " + ChatColor.AQUA + results.getString("displayBlock")
-                        + "\n" + ChatColor.RESET + "Original Block: " + ChatColor.AQUA + results.getString("originalBlock")
-                        + "\n" + ChatColor.RESET + "Drop Item: " + ChatColor.AQUA + results.getString("dropItem") + "x" + results.getInt("dropItemCount")
-                        + "\n" + ChatColor.RESET + "Reset Interval: " + ChatColor.AQUA + results.getInt("resetInterval") + " seconds";
-                player.sendMessage(blockInfoString);
-            } else {
-                player.sendMessage(prefix + " You need to look at the TimeMine block in order to show its info.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            database.closeConnection();
+
+        int x = targetBlock.getX();
+        int y = targetBlock.getY();
+        int z = targetBlock.getZ();
+        World world = targetBlock.getWorld();
+        String comboId = x + "-" + y + "-" + z + "-" + world.getName();
+        TimeMineBlock b = BlockCache.getBlock(comboId);
+
+        //Check if target block is TimeMine block
+        if (b == null) {
+            player.sendMessage(prefix + " You need to look at the TimeMine block in order to show its info.");
+            return;
         }
+
+        //Everything checks out... Show info
+        String blockInfoString = ""
+                + prefix + " block info:"
+                + "\n" + ChatColor.RESET + "Coordinates: " + ChatColor.AQUA + world.getName() + ChatColor.AQUA + " X" + ChatColor.GREEN + x + ChatColor.AQUA + " Y" + ChatColor.GREEN + y + ChatColor.AQUA + " Z" + ChatColor.GREEN + z
+                + "\n" + ChatColor.RESET + "Is Mined: " + ChatColor.AQUA + b.isMined()
+                + "\n" + ChatColor.RESET + "Display Block: " + ChatColor.AQUA + b.getDisplayBlock().toString()
+                + "\n" + ChatColor.RESET + "Original Block: " + ChatColor.AQUA + b.getOriginalBlock().toString()
+                + "\n" + ChatColor.RESET + "Drop Item: " + ChatColor.AQUA + b.getDropItem().toString() + "x" + b.getDropItemCount()
+                + "\n" + ChatColor.RESET + "Reset Interval: " + ChatColor.AQUA + b.getResetInterval() + " seconds";
+        player.sendMessage(blockInfoString);
     }
 
     private void handleRemove(CommandSender commandSender, final boolean all) {
-        final Database database = new Database();
-        final Player player = (Player) commandSender;
-        //Stop reset task while removing
-        plugin.stopBlockResetTask();
-        try {
-            String sql;
-            if (all) {
-                sql = "SELECT * FROM timemine";
-                ResultSet results = database.query(sql);
-                if (results != null) {
-                    while (results.next()) {
-                        final Material originalBlock = Material.getMaterial(results.getString("originalBlock"));
-                        final int x = results.getInt("x");
-                        final int y = results.getInt("y");
-                        final int z = results.getInt("z");
-                        final World world = Bukkit.getServer().getWorld(results.getString("world"));
-                        //noinspection ConstantConditions
-                        world.getBlockAt(x, y, z).setType(originalBlock);
-                    }
-                    sql = "TRUNCATE timemine";
-                    database.insertOrUpdate(sql);
-                    player.sendMessage(prefix + " All TimeMine blocks were removed.");
-                } else {
-                    player.sendMessage(prefix + " There are no TimeMine blocks to remove!");
-                }
-            } else {
-                final Block targetBlock = player.getTargetBlockExact(30, FluidCollisionMode.ALWAYS);
-                if(targetBlock == null) {
-                    player.sendMessage(prefix + " The block you are looking at is invalid or too far away.");
-                    return;
-                }
-                final int x = targetBlock.getX();
-                final int y = targetBlock.getY();
-                final int z = targetBlock.getZ();
-                final World world = targetBlock.getWorld();
+        Player player = (Player) commandSender;
+        Block targetBlock = player.getTargetBlockExact(30, FluidCollisionMode.ALWAYS);
 
-                sql = "SELECT * FROM timemine WHERE x = " + x + " AND y = " + y + " AND z = " + z + " AND world = " + world.getName();
-                ResultSet results = database.query(sql);
-                if (results != null && results.first()) {
-                    final Material originalBlock = Material.getMaterial(results.getString("originalBlock"));
-                    //noinspection ConstantConditions
-                    targetBlock.setType(originalBlock);
-                    sql = "DELETE FROM timemine WHERE x = " + x + " AND y = " + y + " AND z = " + z + " AND world = " + world.getName();
-                    database.insertOrUpdate(sql);
-                    player.sendMessage(prefix + " TimeMine block removed successfully!");
-                } else {
-                    player.sendMessage(prefix + " You need to look at the TimeMine block in order to remove it.");
+        //Stop reset task while removing to prevent SQLExceptions
+        plugin.stopResetTask();
+
+        if (all) {
+            BlockCache.removeAllBlocks();
+        } else {
+            //Check if target block is valid
+            if(targetBlock == null) {
+                player.sendMessage(prefix + " The block you are looking at is invalid or too far away.");
+            } else {
+                int x = targetBlock.getX();
+                int y = targetBlock.getY();
+                int z = targetBlock.getZ();
+                World world = targetBlock.getWorld();
+                String comboId = x + "-" + y + "-" + z + "-" + world.getName();
+                try {
+                    BlockCache.removeBlock(comboId);
+                } catch (BlockNotFoundException e) {
+                    player.sendMessage(prefix + " The target block is not configured as a TimeMine block.");
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            database.closeConnection();
-            //Resume reset task
-            plugin.startBlockResetTask();
         }
+
+        //Resume reset task
+        plugin.startResetTask();
     }
 
     private void handleList(CommandSender commandSender) {
-        final Database database = new Database();
-        final Player player = (Player) commandSender;
-        StringBuilder message = new StringBuilder();
-        message.append(prefix).append(" Active  Blocks:");
-        try {
-            final String sql = "SELECT x, y, z, world FROM timemine";
-            final ResultSet results = database.query(sql);
-            if (results != null) {
-                int count = 1;
-                while (results.next()) {
-                    final int x = results.getInt("x");
-                    final int y = results.getInt("y");
-                    final int z = results.getInt("z");
-                    final String world = results.getString("world");
-                    final String str = ChatColor.RESET + "\n#" + count + " : " + ChatColor.AQUA + world + ChatColor.AQUA + " X" + ChatColor.GREEN + x + ChatColor.AQUA + " Y" + ChatColor.GREEN + y + ChatColor.AQUA + " Z" + ChatColor.GREEN + z;
-                    message.append(str);
-                    count++;
-                }
-                player.sendMessage(message.toString());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            database.closeConnection();
+        Player player = (Player) commandSender;
+        HashMap<String, TimeMineBlock> cache = BlockCache.getCache();
+
+        int count = 1;
+        String message =  prefix + " Active Blocks:";
+        for (Map.Entry<String, TimeMineBlock> entry : cache.entrySet()) {
+            TimeMineBlock b = entry.getValue();
+            message += ChatColor.RESET + "\n#" + count + " : " + ChatColor.AQUA + b.world.getName() + ChatColor.AQUA + " X" + ChatColor.GREEN + b.x + ChatColor.AQUA + " Y" + ChatColor.GREEN + b.y + ChatColor.AQUA + " Z" + ChatColor.GREEN + b.z;
+            count++;
         }
+        player.sendMessage(message);
     }
 
     private void handleAdd(CommandSender commandSender, String[] args) {
-        final Database database = new Database();
-        final Player player = (Player) commandSender;
-        final Block targetBlock = player.getTargetBlockExact(30, FluidCollisionMode.ALWAYS);
+        Player player = (Player) commandSender;
+        Block targetBlock = player.getTargetBlockExact(30, FluidCollisionMode.ALWAYS);
+
+        //Check for all required arguments
         if (args.length < 3) {
-            player.sendMessage(prefix + " You have not provided all of the required parameters for this command. Use /timemine help");
+            player.sendMessage(prefix + " You have not provided all of the required parameters for this command.\nCommand Usage: /timemine <display_block> <interval> <drop_item> [drop_item_count (default: 1)]");
             return;
         }
+
         Material displayBlock = Material.matchMaterial(args[0]);
         Material dropItem = Material.matchMaterial(args[2]);
-        int resetInterval;
-        int dropItemCount = 1;
+
+        //Try to parse provided integers
+        short resetInterval;
+        short dropItemCount = 1;
         try {
-            resetInterval = Integer.parseInt(args[1]);
+            resetInterval = Short.parseShort(args[1]);
         } catch(NumberFormatException e) {
             player.sendMessage(prefix + " Invalid integer provided for resetInterval.");
             return;
         }
         if (args.length > 3) {
             try {
-                dropItemCount = Integer.parseInt(args[3]);
+                dropItemCount = Short.parseShort(args[3]);
             } catch(NumberFormatException e) {
                 player.sendMessage(prefix + " Invalid integer provided for dropItemCount.");
                 return;
             }
         }
 
+        //Validate provided arguments
         if(targetBlock == null) {
             player.sendMessage(prefix + " The block you are looking at is invalid or too far away.");
         } else if(displayBlock == null || !displayBlock.isBlock()) {
             player.sendMessage(prefix + " The specified display block is invalid.");
         } else if(dropItem == null) {
             player.sendMessage(prefix + " The specified drop item is invalid.");
-        } else if(resetInterval < 1 || resetInterval > 86400) {
-            player.sendMessage(prefix + " Reset interval must be between 1 and 86400 (24 hours) seconds.");
+        } else if(resetInterval < 1 || resetInterval >= 32767) {
+            player.sendMessage(prefix + " Reset interval must be between 1 and 32767 (9.1 hours) seconds.");
         } else if(dropItemCount < 1 || dropItemCount > 64) {
             player.sendMessage(prefix + " Drop item count must be between 1 and 64.");
         } else {
-            try {
-                final int x = targetBlock.getX();
-                final int y = targetBlock.getY();
-                final int z = targetBlock.getZ();
-                final String world = player.getWorld().getName();
-                boolean updated = false;
-                String sql = "SELECT * FROM timemine WHERE x = " + x + " AND y = " + y + " AND z = " + z + " AND world = '" + world + "' LIMIT 1;";
-                ResultSet results = database.query(sql);
+            int x = targetBlock.getX();
+            int y = targetBlock.getY();
+            int z = targetBlock.getZ();
+            World world = player.getWorld();
+            String comboId = x + "-" + y + "-" + z + "-" + world.getName();
+            TimeMineBlock b = BlockCache.getBlock(comboId);
 
-                if (results != null && results.first()) {
-                    sql = "UPDATE timemine SET isMined = 0, displayBlock = '" + displayBlock.toString() + "', dropItem = '" + dropItem.toString() + "', dropItemCount = " + dropItemCount + ", minedAt = NULL, resetInterval = " + resetInterval + " WHERE x = " + x + " AND y = " + y + " AND z = " + z + " AND world = '" + world + "'";
-                    updated = true;
-                } else {
-                    sql = "INSERT INTO timemine (x, y, z, world, displayBlock, originalBlock, dropItem, dropItemCount, resetInterval) VALUES (" + x + ", " + y + ", " + z + ", '" + world + "', '" + displayBlock.toString() + "', '" + targetBlock.getType().toString() + "', '" + dropItem.toString() + "', " + dropItemCount + ", " + resetInterval + ")";
+            //Check if TimeMineBlock exists and update it
+            if (b != null) {
+                b.setMined(false);
+                b.setDisplayBlock(displayBlock);
+                b.setDropItem(dropItem);
+                b.setDropItemCount(dropItemCount);
+                b.setResetInterval(resetInterval);
+                player.sendMessage(prefix + " Block successfully updated.");
+            } else {
+                //If block doesn't exist, create it
+                try {
+                    b = BlockCache.addBlock(targetBlock, displayBlock, dropItem, dropItemCount, resetInterval);
+                    player.sendMessage(prefix + " Block successfully created.");
+                } catch (SQLException | InvalidWorldException e) {
+                    e.printStackTrace();
+                    player.sendMessage("An error occurred while adding this TimeMine block.");
+                    return;
                 }
-                database.insertOrUpdate(sql);
-                targetBlock.setType(displayBlock);
-                if (updated) {
-                    player.sendMessage(prefix + " Existing block has been updated successfully.");
-                } else {
-                    player.sendMessage(prefix + " Block has been created successfully.");
-                }
-            } catch (SQLException e) {
-                player.sendMessage(prefix + " An internal server error has occurred. Check console for more information.");
-                e.printStackTrace();
-            } catch (Exception e) {
-                player.sendMessage(prefix + " An internal server error has occurred. Please check console for more information.");
-                e.printStackTrace();
-            } finally {
-                database.closeConnection();
             }
+
+            //Set the block type to its display block
+            b.setBlockType(b.getDisplayBlock());
         }
     }
 }

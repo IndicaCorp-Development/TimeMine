@@ -9,3 +9,7 @@ commands:
     description: TimeMine base command.
     usage: "/timemine help"
     aliases: [tm]
+permissions:
+  timemine.admin:
+    description: Default permission node. Allows all commands.
+    default: op
