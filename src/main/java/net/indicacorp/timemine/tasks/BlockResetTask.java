@@ -4,18 +4,13 @@ import net.indicacorp.timemine.models.TimeMineBlock;
 import net.indicacorp.timemine.util.BlockCache;
 
 import java.util.*;
-//import java.util.concurrent.Executors;
-//import java.util.concurrent.ScheduledExecutorService;
-//import java.util.concurrent.TimeUnit;
 
 public class BlockResetTask {
-//    private ScheduledExecutorService executorService;
     private Timer timer;
     private int period;
     private boolean paused;
 
     public BlockResetTask(int interval) {
-//        executorService = Executors.newSingleThreadScheduledExecutor();
         period = interval;
         paused = false;
         timer = new Timer();
@@ -23,12 +18,6 @@ public class BlockResetTask {
 
     public void stop() { paused = true; }
     public void start() { paused = false; }
-
-//    public void initTask() {
-//        executorService.scheduleAtFixedRate(() -> {
-//
-//        }, 0, period, TimeUnit.SECONDS);
-//    }
     public void initTask() {
         timer.scheduleAtFixedRate(new Task(), 0, period*1000);
     }
