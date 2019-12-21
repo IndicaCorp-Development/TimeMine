@@ -1,5 +1,5 @@
 name: TimeMine
-version: 1.0.0-alpha1
+version: 1.0.0-alpha2
 author: Github/popatop15
 website: www.indicacorp.net
 main: net.indicacorp.timemine.TimeMine
@@ -9,3 +9,7 @@ commands:
     description: TimeMine base command.
     usage: "/timemine help"
     aliases: [tm]
+permissions:
+  timemine.admin:
+    description: Default permission node. Allows all commands.
+    default: op

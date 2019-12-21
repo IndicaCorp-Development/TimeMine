@@ -1,3 +1,4 @@
+# MySQL config options
 mysql:
   username: "username"
   password: "password"
@@ -5,41 +6,43 @@ mysql:
   port: "3306"
   database: "database"
 
+# General config options
 timemine:
   # In seconds. How often the plugin should check for expired TimeMine blocks. <30 is not recommended.
-  block_reset_interval: 30
+  expired_block_reset_interval: 30
   prefix: "[TimeMine]"
 
-  mineables:
-    DIAMOND_PICKAXE:
-      - DIAMOND_ORE
-      - GOLD_ORE
-      - IRON_ORE
-      - COAL_ORE
-      - EMERALD_ORE
-      - LAPIS_ORE
-      - NETHER_QUARTZ_ORE
-      - REDSTONE_ORE
-    GOLD_PICKAXE:
-      - DIAMOND_ORE
-      - GOLD_ORE
-      - IRON_ORE
-      - COAL_ORE
-      - EMERALD_ORE
-      - LAPIS_ORE
-      - NETHER_QUARTZ_ORE
-      - REDSTONE_ORE
-    IRON_PICKAXE:
-      - DIAMOND_ORE
-      - GOLD_ORE
-      - IRON_ORE
-      - COAL_ORE
-      - EMERALD_ORE
-      - LAPIS_ORE
-      - NETHER_QUARTZ_ORE
-      - REDSTONE_ORE
-    STONE_PICKAXE:
-      - IRON_ORE
-      - COAL_ORE
-      - LAPIS_ORE
-      - NETHER_QUARTZ_ORE
+# Mineables config section
+mineables:
+  DIAMOND_PICKAXE:
+    - DIAMOND_ORE
+    - GOLD_ORE
+    - IRON_ORE
+    - COAL_ORE
+    - EMERALD_ORE
+    - LAPIS_ORE
+    - NETHER_QUARTZ_ORE
+    - REDSTONE_ORE
+  GOLD_PICKAXE:
+    - DIAMOND_ORE
+    - GOLD_ORE
+    - IRON_ORE
+    - COAL_ORE
+    - EMERALD_ORE
+    - LAPIS_ORE
+    - NETHER_QUARTZ_ORE
+    - REDSTONE_ORE
+  IRON_PICKAXE:
+    - DIAMOND_ORE
+    - GOLD_ORE
+    - IRON_ORE
+    - COAL_ORE
+    - EMERALD_ORE
+    - LAPIS_ORE
+    - NETHER_QUARTZ_ORE
+    - REDSTONE_ORE
+  STONE_PICKAXE:
+    - IRON_ORE
+    - COAL_ORE
+    - LAPIS_ORE
+    - NETHER_QUARTZ_ORE

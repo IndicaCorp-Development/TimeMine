@@ -2,10 +2,10 @@
 
 #### About
 Configure mineable blocks that automatically reset to the configured ore after a 
-period of time. Currently requires a MySQL server/database connection. I don't have 
-plans on adding another database driver, and basic file storage is not efficient 
+period of time. Currently requires a MySQL server/databaseHelper connection. I don't have 
+plans on adding another databaseHelper driver, and basic file storage is not efficient 
 enough for the type of queries performed by this plugin. Feel free to make another
-database driver in a PR :)
+databaseHelper driver in a PR :)
 
 #### Commands
 * Base Command: `/timemine` or `/tm`
