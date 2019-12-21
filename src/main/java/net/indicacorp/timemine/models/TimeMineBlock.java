@@ -1,5 +1,6 @@
 package net.indicacorp.timemine.models;
 
+import net.indicacorp.timemine.TimeMine;
 import net.indicacorp.timemine.exceptions.InvalidWorldException;
 import net.indicacorp.timemine.util.DatabaseHelper;
 import org.bukkit.Bukkit;
@@ -23,8 +24,11 @@ public class TimeMineBlock {
     private short dropItemCount;
     private Date minedAt;
     private short resetInterval;
+    private static TimeMine plugin;
 
     public TimeMineBlock(ResultSet e) throws SQLException, InvalidWorldException {
+        plugin = TimeMine.getInstance();
+
         id = e.getLong("id");
         world = Bukkit.getServer().getWorld(e.getString("world"));
         if (world == null) throw new InvalidWorldException(this.id);
@@ -107,7 +111,9 @@ public class TimeMineBlock {
     }
 
     public void setBlockType(Material m) {
-        world.getBlockAt(x, y, z).setType(m);
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            world.getBlockAt(x, y, z).setType(m);
+        });
     }
 
     public String getComboId() {
