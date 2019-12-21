@@ -1,5 +1,6 @@
 package net.indicacorp.timemine.listeners;
 
+import net.indicacorp.timemine.TimeMine;
 import net.indicacorp.timemine.models.TimeMineBlock;
 import net.indicacorp.timemine.util.BlockCache;
 import org.bukkit.GameMode;
@@ -24,6 +25,7 @@ public class BlockBreakListener implements Listener {
         add(Material.STONE_PICKAXE);
         add(Material.GOLDEN_PICKAXE);
     }};
+    private static String prefix = TimeMine.getInstance().getConfig().getString("timemine.prefix");
 
     public BlockBreakListener() {}
 
@@ -49,7 +51,7 @@ public class BlockBreakListener implements Listener {
 
         //Block isn't ready to be mined
         if (b.isMined()) {
-            player.sendMessage("This block can not be mined currently!");
+            player.sendMessage(prefix + " This block can not be mined currently!");
             return;
         }
 
