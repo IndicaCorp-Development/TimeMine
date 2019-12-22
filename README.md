@@ -1,4 +1,4 @@
-# TimeMine [![Build Status](https://travis-ci.com/popatop15/TimeMine.svg?branch=master)](https://travis-ci.com/popatop15/TimeMine)
+# TimeMine [![Build Status](https://travis-ci.com/IndicaCorp-Development/TimeMine.svg?branch=master)](https://travis-ci.com/IndicaCorp-Development/TimeMine)
 
 #### About
 Configure mineable blocks that automatically reset to the configured ore after a 
