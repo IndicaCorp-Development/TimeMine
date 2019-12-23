@@ -11,6 +11,8 @@ import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.sql.SQLException;
+
 public class TimeMine extends JavaPlugin {
 
     BlockResetTask blockResetTask;
@@ -69,6 +71,9 @@ public class TimeMine extends JavaPlugin {
             disablePlugin();
         } catch (ClassNotFoundException e) {
             getLogger().warning("Database driver could not be found");
+            disablePlugin();
+        } catch (SQLException e) {
+            getLogger().warning(e.getMessage());
             disablePlugin();
         }
     }

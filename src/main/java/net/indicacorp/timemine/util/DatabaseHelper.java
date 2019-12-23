@@ -28,7 +28,7 @@ public class DatabaseHelper {
         return ds.getConnection();
     }
 
-    public static void initDatabase() throws ClassNotFoundException {
+    public static void initDatabase() throws ClassNotFoundException, SQLException {
         /*
             Column         Default
             id             AUTO_INCREMENT
@@ -48,7 +48,8 @@ public class DatabaseHelper {
 //        insertOrUpdateSync(sql);
 
         String sql = "CREATE TABLE IF NOT EXISTS timemine ( id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT, x INT NOT NULL, y INT NOT NULL, z INT NOT NULL, world VARCHAR(255) NOT NULL, isMined TINYINT(1) NOT NULL DEFAULT 0, displayBlock VARCHAR(50) NOT NULL, originalBlock VARCHAR(50) NOT NULL DEFAULT 'SMOOTH_STONE', dropItem VARCHAR(50) NOT NULL, dropItemCount INT NOT NULL DEFAULT 1, minedAt TIMESTAMP NULL DEFAULT NULL, resetInterval INT NOT NULL DEFAULT 60)";
-        insertOrUpdateSync(sql);
+        long t = insertOrUpdateSync(sql);
+        if (t == -1) throw new SQLException("Database couldn't be initialized.");
 
         plugin.getLogger().info("Database connected and initialized");
     }
@@ -78,7 +79,7 @@ public class DatabaseHelper {
     }
 
     public static long insertOrUpdateSync(String sql) {
-        long generatedKey = 0;
+        long generatedKey = -1;
         try {
             Connection connection = getConnection();
             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -86,6 +87,8 @@ public class DatabaseHelper {
             ResultSet generatedKeys = stmt.getGeneratedKeys();
             if (generatedKeys.next()) {
                 generatedKey = generatedKeys.getInt(1);
+            } else {
+                generatedKey = 0;
             }
             connection.close();
         } catch (SQLException e) {
