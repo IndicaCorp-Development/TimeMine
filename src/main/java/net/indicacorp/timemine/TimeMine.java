@@ -30,24 +30,15 @@ public class TimeMine extends JavaPlugin {
     @Override
     public void onEnable() {
         super.onEnable();
-
         config.options().copyDefaults(true);
         saveConfig();
-
         initPlugin();
-
-        getLogger().info("Plugin enabled successfully.");
     }
 
     @Override
     public void onDisable() {
         super.onDisable();
-
-        config.options().copyDefaults(true);
-        saveConfig();
-        blockResetTask.stop();
-
-        getLogger().info("Plugin disabled successfully.");
+        blockResetTask.cancelTask();
     }
 
     public void disablePlugin() { this.getServer().getPluginManager().disablePlugin(this); }

@@ -6,9 +6,10 @@ import net.indicacorp.timemine.util.BlockCache;
 import java.util.*;
 
 public class BlockResetTask {
-    private Timer timer;
-    private int period;
-    private boolean paused;
+    private static Timer timer;
+    private static int period;
+    private static boolean paused;
+    private static TimerTask task;
 
     public BlockResetTask(int interval) {
         period = interval;
@@ -19,10 +20,14 @@ public class BlockResetTask {
     public void stop() { paused = true; }
     public void start() { paused = false; }
     public void initTask() {
-        timer.scheduleAtFixedRate(new Task(), 0, period*1000);
+        task = new Task();
+        timer.scheduleAtFixedRate(task, 0, period*1000);
+    }
+    public void cancelTask() {
+        task.cancel();
     }
 
-    private class Task extends TimerTask {
+    private static class Task extends TimerTask {
         @Override
         public void run() {
             if (paused) return;
