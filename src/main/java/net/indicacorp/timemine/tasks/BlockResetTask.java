@@ -24,6 +24,7 @@ public class BlockResetTask {
         timer.scheduleAtFixedRate(task, 0, period*1000);
     }
     public void cancelTask() {
+        if (task == null) return;
         task.cancel();
     }
 
