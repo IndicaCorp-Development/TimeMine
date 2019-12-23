@@ -6,13 +6,13 @@
 
     <groupId>net.indicacorp</groupId>
     <artifactId>TimeMine</artifactId>
-    <version>1.0.0-alpha2</version>
+    <version>1.0.0-beta</version>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.releaseDescription>Test release</project.releaseDescription>
+        <project.releaseDescription>Official beta release. Product may have bugs.</project.releaseDescription>
         <project.prerelease>yes</project.prerelease>
         <project.draft>no</project.draft>
     </properties>
@@ -90,7 +90,6 @@
                 </executions>
 
                 <configuration>
-                    <overwrite>true</overwrite>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
             </plugin>
