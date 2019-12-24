@@ -222,7 +222,7 @@ public class CommandHandler implements CommandExecutor {
         } else if(dropItemCount < 1 || dropItemCount > 64) {
             player.sendMessage(prefix + " Drop item count must be between 1 and 64.");
         } else if(dropItemRange > -1 && (dropItemCount >= dropItemRange)) {
-                player.sendMessage(prefix + " You provided a range for the drop count, but the minimum value can not be less than the maximum.");
+                player.sendMessage(prefix + " You provided a range for the drop count, but the minimum value can not be greater than the maximum.");
         } else if (dropItemRange > 64) {
                 player.sendMessage(prefix + " Drop item range must be between 2 and 64.");
         } else {
