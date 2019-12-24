@@ -25,7 +25,7 @@ enough for the type of queries performed by this plugin.
 ***Note:** `add`, `remove`, and `info` commands all require that you look at the block in question. You must be 30 blocks or closer for it to register.*  
 
 #### Updating  
-###### v1.1.0-beta:
+###### v1.0.0-beta >>> v1.1.0-beta:
 Create a new column in the `timemine` table - `'dropItemRange' INT DEFAULT NULL`
 
 #### Config
