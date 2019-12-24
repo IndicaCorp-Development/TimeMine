@@ -1,12 +1,5 @@
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-# TimeMine
-#
-# Author: GitHub/popatop15
-# Inquiries: inquiries@indicacorp.net or add me on Discord @Pop#0001
-# Support: discord.indicacorp.net
-#
-# Submit issues on GitHub. DO NOT EMAIL ME FOR SUPPORT OR TO REPORT ISSUES!
-# Note: Check the repo's README for configuration explanations
+# TimeMine Config v1.0.0-beta
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 mysql:
   username: "username"
