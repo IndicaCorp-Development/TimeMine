@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class BlockBreakListener implements Listener {
 
@@ -63,7 +64,16 @@ public class BlockBreakListener implements Listener {
             return;
         }
         //Yes, so handle the break event, and drop the set item stack
-        block.getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(b.getDropItem(), b.getDropItemCount()));
+        String d = b.getDropItemCount();
+        int dropCount;
+        if (!d.contains("-")) {
+            dropCount = Integer.parseInt(b.getDropItemCount());
+        } else {
+            int min = Integer.parseInt(d.split("-")[0]);
+            int max = Integer.parseInt(d.split("-")[1]);
+            dropCount = new Random().nextInt((max - min) + 1) + min;
+        }
+        block.getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(b.getDropItem(), dropCount));
 
         //Block is ready to be mined... Continue with event
         //Update isMined, minedAt, timestamp, and set block to originalBlock

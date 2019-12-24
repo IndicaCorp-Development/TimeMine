@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class CommandHandler implements CommandExecutor {
     TimeMine plugin;
@@ -186,7 +187,8 @@ public class CommandHandler implements CommandExecutor {
 
         //Try to parse provided integers
         short resetInterval;
-        short dropItemCount = 1;
+        int dropItemCount = 1;
+        int dropItemRange = -1;
         try {
             resetInterval = Short.parseShort(args[1]);
         } catch(NumberFormatException e) {
@@ -195,7 +197,13 @@ public class CommandHandler implements CommandExecutor {
         }
         if (args.length > 3) {
             try {
-                dropItemCount = Short.parseShort(args[3]);
+                String s = args[3];
+                if (s.contains("-")) {
+                    dropItemCount= Integer.parseInt(s.split("-")[0]);
+                    dropItemRange = Integer.parseInt(s.split("-")[1]);
+                } else {
+                    dropItemCount = Integer.parseInt(args[3]);
+                }
             } catch(NumberFormatException e) {
                 player.sendMessage(prefix + " Invalid integer provided for dropItemCount.");
                 return;
@@ -213,6 +221,10 @@ public class CommandHandler implements CommandExecutor {
             player.sendMessage(prefix + " Reset interval must be between 1 and 32767 (9.1 hours) seconds.");
         } else if(dropItemCount < 1 || dropItemCount > 64) {
             player.sendMessage(prefix + " Drop item count must be between 1 and 64.");
+        } else if(dropItemRange > -1 && (dropItemCount >= dropItemRange)) {
+                player.sendMessage(prefix + " You provided a range for the drop count, but the minimum value can not be less than the maximum.");
+        } else if (dropItemRange > 64) {
+                player.sendMessage(prefix + " Drop item range must be between 2 and 64.");
         } else {
             int x = targetBlock.getX();
             int y = targetBlock.getY();
@@ -226,13 +238,13 @@ public class CommandHandler implements CommandExecutor {
                 b.setMined(false);
                 b.setDisplayBlock(displayBlock);
                 b.setDropItem(dropItem);
-                b.setDropItemCount(dropItemCount);
+                b.setDropItemCount(dropItemCount, dropItemRange);
                 b.setResetInterval(resetInterval);
                 player.sendMessage(prefix + " Block successfully updated.");
             } else {
                 //If block doesn't exist, create it
                 try {
-                    b = BlockCache.addBlock(targetBlock, displayBlock, dropItem, dropItemCount, resetInterval);
+                    b = BlockCache.addBlock(targetBlock, displayBlock, dropItem, dropItemCount, dropItemRange, resetInterval);
                     player.sendMessage(prefix + " Block successfully created.");
                 } catch (SQLException | InvalidWorldException e) {
                     e.printStackTrace();

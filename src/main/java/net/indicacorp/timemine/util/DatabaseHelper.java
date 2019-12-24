@@ -47,7 +47,7 @@ public class DatabaseHelper {
 //        String sql = "DROP TABLE IF EXISTS timemine";
 //        insertOrUpdateSync(sql);
 
-        String sql = "CREATE TABLE IF NOT EXISTS timemine ( id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT, x INT NOT NULL, y INT NOT NULL, z INT NOT NULL, world VARCHAR(255) NOT NULL, isMined TINYINT(1) NOT NULL DEFAULT 0, displayBlock VARCHAR(50) NOT NULL, originalBlock VARCHAR(50) NOT NULL DEFAULT 'SMOOTH_STONE', dropItem VARCHAR(50) NOT NULL, dropItemCount INT NOT NULL DEFAULT 1, minedAt TIMESTAMP NULL DEFAULT NULL, resetInterval INT NOT NULL DEFAULT 60)";
+        String sql = "CREATE TABLE IF NOT EXISTS timemine ( id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT, x INT NOT NULL, y INT NOT NULL, z INT NOT NULL, world VARCHAR(255) NOT NULL, isMined TINYINT(1) NOT NULL DEFAULT 0, displayBlock VARCHAR(50) NOT NULL, originalBlock VARCHAR(50) NOT NULL DEFAULT 'SMOOTH_STONE', dropItem VARCHAR(50) NOT NULL, dropItemCount INT NOT NULL DEFAULT 1, dropItemRange INT DEFAULT NULL, minedAt TIMESTAMP NULL DEFAULT NULL, resetInterval INT NOT NULL DEFAULT 60)";
         long t = insertOrUpdateSync(sql);
         if (t == -1) throw new SQLException("Database couldn't be initialized.");
 
