@@ -1,4 +1,6 @@
-# MySQL config options
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+# TimeMine Config v1.0.0-beta
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 mysql:
   username: "username"
   password: "password"
@@ -13,6 +15,10 @@ timemine:
   prefix: "[TimeMine]"
 
 # Mineables config section
+#   Format:
+#     TOOL_ENUM: (Can be any item in the game that you want to be able to the specified blocks)
+#       - BLOCK_ENUM (Must be a breakable block)
+#       - ANOTHER_BLOCK_ENUM (Can list as many blocks as you want which should be mineable by this block)
 mineables:
   DIAMOND_PICKAXE:
     - DIAMOND_ORE

@@ -2,6 +2,7 @@ package net.indicacorp.timemine.listeners;
 
 import net.indicacorp.timemine.TimeMine;
 import net.indicacorp.timemine.models.TimeMineBlock;
+import net.indicacorp.timemine.models.Tool;
 import net.indicacorp.timemine.util.BlockCache;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -56,10 +57,13 @@ public class BlockBreakListener implements Listener {
         }
 
         //Check if tool being used is allowed
-        //TODO: load mineables from config into hashmap and check based on that
-        if (TOOLS.contains(player.getInventory().getItemInMainHand().getType())) {
-            block.getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(b.getDropItem(), b.getDropItemCount()));
+        Tool tool = new Tool(player.getInventory().getItemInMainHand().getType());
+        if (!tool.canMine(block.getType())) {
+            player.sendMessage(prefix + " You can't mine this with that.");
+            return;
         }
+        //Yes, so handle the break event, and drop the set item stack
+        block.getWorld().dropItemNaturally(event.getBlock().getLocation(), new ItemStack(b.getDropItem(), b.getDropItemCount()));
 
         //Block is ready to be mined... Continue with event
         //Update isMined, minedAt, timestamp, and set block to originalBlock

@@ -78,14 +78,16 @@ public class CommandHandler implements CommandExecutor {
 
     private void sendHelp(CommandSender commandSender) {
         String str = prefix + " help:\n" +
-                ChatColor.YELLOW + "General usage: /timemine <display_block> <interval> <drop_item> [drop_item_count (default: 1)]\n" +
+                ChatColor.AQUA + "/timemine <display_block> <expires_after (number of seconds)> <drop_item> [drop_item_count (default: 1)]: " + ChatColor.RESET + "Create a TimeMine block at the targeted location.\n" +
+                ChatColor.YELLOW + "Example: /timemine DIAMOND_ORE 20 DIAMOND 16\n" +
                 ChatColor.AQUA + "/timemine list: " + ChatColor.RESET + "List all active TimeMine blocks.\n" +
                 ChatColor.AQUA + "/timemine info: " + ChatColor.RESET + "List info of the currently targeted TimeMine block.\n" +
                 ChatColor.AQUA + "/timemine help: " + ChatColor.RESET + "TimeMine help command.\n" +
                 ChatColor.AQUA + "/timemine start: " + ChatColor.RESET + "Start/restart the BlockResetTask.\n" +
                 ChatColor.AQUA + "/timemine stop: " + ChatColor.RESET + "Stop the BlockResetTask.\n" +
                 ChatColor.AQUA + "/timemine delete | remove: " + ChatColor.RESET + "Removes the currently targeted TimeMine block.\n" +
-                ChatColor.AQUA + "/timemine deleteall | removeall: " + ChatColor.RESET + "Removes all currently active TimeMine blocks.";
+                ChatColor.AQUA + "/timemine deleteall | removeall: " + ChatColor.RESET + "Removes all currently active TimeMine blocks.\n" +
+                ChatColor.AQUA + "/timemine reset: " + ChatColor.RESET + "Resets all TimeMine blocks.";
         commandSender.sendMessage(str);
     }
 
@@ -120,7 +122,7 @@ public class CommandHandler implements CommandExecutor {
                 + "\n" + ChatColor.RESET + "Display Block: " + ChatColor.AQUA + b.getDisplayBlock().toString()
                 + "\n" + ChatColor.RESET + "Original Block: " + ChatColor.AQUA + b.getOriginalBlock().toString()
                 + "\n" + ChatColor.RESET + "Drop Item: " + ChatColor.AQUA + b.getDropItem().toString() + "x" + b.getDropItemCount()
-                + "\n" + ChatColor.RESET + "Reset Interval: " + ChatColor.AQUA + b.getResetInterval() + " seconds";
+                + "\n" + ChatColor.RESET + "Expires After: " + ChatColor.AQUA + b.getResetInterval() + " seconds";
         player.sendMessage(blockInfoString);
     }
 
