@@ -22,8 +22,10 @@ public class BlockCache {
         return cache.get(comboId);
     }
 
-    public static TimeMineBlock addBlock(Block block, Material displayBlock, Material dropItem, short dropItemCount, short resetInterval) throws SQLException, InvalidWorldException {
-        String sql = "INSERT INTO timemine (x, y, z, world, displayBlock, originalBlock, dropItem, dropItemCount, resetInterval) " +
+    public static TimeMineBlock addBlock(Block block, Material displayBlock, Material dropItem, int dropItemCount, int dropItemRange, short resetInterval) throws SQLException, InvalidWorldException {
+        String dropRange = "NULL, ";
+        if (dropItemRange > 0) dropRange = dropItemRange + ", ";
+        String sql = "INSERT INTO timemine (x, y, z, world, displayBlock, originalBlock, dropItem, dropItemCount, dropItemRange, resetInterval) " +
                 "VALUES (" +
                     block.getX() + ", " +
                     block.getY() + ", " +
@@ -33,6 +35,7 @@ public class BlockCache {
                     block.getType().toString() + "', '" +
                     dropItem.toString() + "', " +
                     dropItemCount + ", " +
+                    dropRange +
                     resetInterval +
                 ")";
         long id = DatabaseHelper.insertOrUpdateSync(sql);

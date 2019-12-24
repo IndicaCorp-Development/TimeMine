@@ -8,7 +8,7 @@ enough for the type of queries performed by this plugin.
   
 #### Support
 **Inquiries:** inquiries@indicacorp.net or DM me on Discord @Pop#0001  
-**Support:** discord.indicacorp.net
+**Support:** discord.indicacorp.net  
 **Issues/Requests:** Submit issues and feature request on GitHub  
 **DO NOT EMAIL ME WITH ISSUES OR SUPPORT REQUESTS**  
   
@@ -22,8 +22,12 @@ enough for the type of queries performed by this plugin.
 * Display a TimeMine block info: `/tm info`
 * Reset all TimeMine blocks: `/tm reset`
   
-***Note:** `add`, `remove`, and `info` commands all require that you look at the block in question. You must be 30 blocks or closer for it to register.*
-  
+***Note:** `add`, `remove`, and `info` commands all require that you look at the block in question. You must be 30 blocks or closer for it to register.*  
+
+#### Updating  
+###### v1.1.0-beta:
+Create a new column in the `timemine` table - `'dropItemRange' INT DEFAULT NULL`
+
 #### Config
 ```yaml
 # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

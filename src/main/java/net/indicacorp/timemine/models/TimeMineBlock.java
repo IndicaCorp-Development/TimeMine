@@ -21,7 +21,7 @@ public class TimeMineBlock {
     private Material displayBlock;
     private Material originalBlock;
     private Material dropItem;
-    private short dropItemCount;
+    private String dropItemCount;
     private Date minedAt;
     private short resetInterval;
     private static TimeMine plugin;
@@ -40,14 +40,14 @@ public class TimeMineBlock {
         displayBlock = Material.getMaterial(e.getString("displayBlock"));
         originalBlock = Material.getMaterial(e.getString("originalBlock"));
         dropItem = Material.getMaterial(e.getString("dropItem"));
-        dropItemCount = e.getShort("dropItemCount");
         minedAt = e.getTimestamp("minedAt");
         resetInterval = e.getShort("resetInterval");
+        dropItemCount = e.getInt("dropItemCount") > 64 ? "64" : e.getString("dropItemCount");
+        if (e.getInt("dropItemRange") > 0 && e.getInt("dropItemRange") < 65) dropItemCount += "-" + e.getString("dropItemRange");
 
         if (displayBlock == null) displayBlock = Material.SMOOTH_STONE;
         if (originalBlock == null) originalBlock = Material.SMOOTH_STONE;
         if (dropItem == null) dropItem = Material.STICK;
-        if (dropItemCount > 64) dropItemCount = 64;
     }
 
     public boolean isMined() {
@@ -82,12 +82,18 @@ public class TimeMineBlock {
         performUpdateQuery("UPDATE timemine SET dropItem = '" + dropItem.toString() + "' WHERE id = " + this.id);
     }
 
-    public short getDropItemCount() {
+    public String getDropItemCount() {
         return dropItemCount;
     }
-    public void setDropItemCount(short dropItemCount) {
-        this.dropItemCount = dropItemCount;
-        performUpdateQuery("UPDATE timemine SET dropItemCount = " + dropItemCount + " WHERE id = " + this.id);
+    public void setDropItemCount(int dropItemCount, int dropItemRange) {
+        this.dropItemCount = String.valueOf(dropItemCount);
+        String sql = "UPDATE timemine SET dropItemCount = " + dropItemCount;
+        if (dropItemRange > 0) {
+            this.dropItemCount += "-" + dropItemRange;
+            sql += ", dropItemRange = " + dropItemRange;
+        }
+        sql += " WHERE id = " + this.id;
+        performUpdateQuery(sql);
     }
 
     public Date getMinedAt() {
